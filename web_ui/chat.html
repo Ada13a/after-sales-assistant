@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>售后助手 - 对话测试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,system-ui,sans-serif;background:#f0f2f5;height:100vh;display:flex;flex-direction:column}
+.header{background:#1b5e20;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:12px}
+.header h1{font-size:18px;font-weight:600}
+.header .desc{font-size:12px;color:#a5d6a7}
+.main{flex:1;display:flex;max-width:900px;margin:0 auto;width:100%;gap:16px;padding:16px;overflow:hidden}
+.chat-panel{flex:1;display:flex;flex-direction:column;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+.chat-header{padding:12px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.chat-header .title-area{display:flex;align-items:center;gap:10px}
+.chat-header .stage{font-size:12px;padding:3px 10px;border-radius:10px;background:#e8f5e9;color:#2e7d32;font-weight:500}
+.chat-header .stage.escalated{background:#ffebee;color:#c62828}
+.chat-header .stage.diagnosing{background:#fff3e0;color:#e65100}
+.messages{flex:1;overflow-y:auto;padding:16px}
+.msg{margin-bottom:16px;display:flex;gap:10px}
+.msg.customer{flex-direction:row-reverse}
+.msg .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.msg.bot .avatar{background:#1b5e20;color:#fff}
+.msg.customer .avatar{background:#ff9800;color:#fff}
+.msg .bubble{max-width:75%;padding:10px 14px;border-radius:12px;line-height:1.6;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.msg.bot .bubble{background:#f0f2f5;color:#333;border-top-left-radius:4px}
+.msg.customer .bubble{background:#ff9800;color:#fff;border-top-right-radius:4px}
+.msg .meta{font-size:11px;color:#999;margin-top:4px}
+.msg.customer .meta{text-align:right}
+.input-area{padding:12px 16px;border-top:1px solid #eee;display:flex;gap:10px}
+.input-area textarea{flex:1;border:1px solid #ddd;border-radius:8px;padding:10px 14px;font-size:14px;resize:none;font-family:inherit;outline:none;min-height:44px;max-height:120px}
+.input-area textarea:focus{border-color:#ff9800}
+.input-area button{background:#ff9800;color:#fff;border:none;border-radius:8px;padding:0 20px;cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap}
+.input-area button:hover{background:#f57c00}
+.input-area button.reset{background:none;border:1px solid #ddd;color:#999;padding:0 12px;font-size:12px}
+.input-area button.reset:hover{background:#f5f5f5}
+.side-panel{width:220px;display:flex;flex-direction:column;gap:12px}
+.card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h3{font-size:13px;color:#333;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ff9800}
+.intent-tag{display:inline-block;padding:4px 10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:6px}
+.intent-tag.代码问题{background:#ffebee;color:#c62828}
+.intent-tag.硬件问题{background:#fce4ec;color:#880e4f}
+.intent-tag.使用指导{background:#e3f2fd;color:#1565c0}
+.intent-tag.论文问题{background:#f3e5f5;color:#6a1b9a}
+.intent-tag.答辩支持{background:#e8f5e9;color:#2e7d32}
+.intent-tag.物流跟踪{background:#e0f2f1;color:#00695c}
+.intent-tag.功能修改{background:#fff3e0;color:#e65100}
+.intent-tag.器件采购{background:#fce4ec;color:#4a148c}
+.intent-tag.其他咨询{background:#f5f5f5;color:#616161}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#999;gap:10px}
+.hint{font-size:11px;color:#aaa;margin-top:6px;line-height:1.6}
+.proj-code{margin-top:8px;font-size:11px;color:#666}
+.proj-code input{width:100%;padding:4px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>售后助手</h1>
+  <span class="desc">耐心解答 · 引导排查 · 靠谱售后</span>
+</div>
+
+<div class="main">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="title-area">
+        <span style="font-weight:600">售后对话测试</span>
+        <span class="stage" id="stageTag">待命中</span>
+      </div>
+    </div>
+    <div class="messages" id="messages">
+      <div class="empty-state">
+        <div style="font-size:40px">&#x1f527;</div>
+        <div style="font-weight:500">我是售后技术学长，帮你解决售后问题</div>
+        <div style="font-size:12px;color:#bbb">
+          代码报错、硬件故障、论文修改、答辩准备<br>
+          把客户的问题发给我，我来帮你回复
+        </div>
+        <div class="hint">
+          试试发：<br>
+          "代码编译报错 main.c(32): error"<br>
+          "OLED屏幕不显示"<br>
+          "论文查重率太高了"
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <button class="reset" onclick="resetChat()">重置</button>
+      <textarea id="userInput" placeholder="把客户的问题贴在这里..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <div class="card">
+      <h3>对话状态</h3>
+      <div id="intentInfo" style="font-size:12px;color:#999">等待对话...</div>
+    </div>
+    <div class="card">
+      <h3>项目代号(可选)</h3>
+      <div class="proj-code">
+        <input type="text" id="projectCode" placeholder="如: 26Q0568">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const customerId = 'web_' + Date.now();
+
+function addMessage(role, text, meta) {
+  const msgs = document.getElementById('messages');
+  // Remove empty state
+  const empty = msgs.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const avatar = role === 'bot' ? '&#x1f527;' : '&#x1f393;';
+  const roleLabel = role === 'bot' ? '售后学长' : '客户';
+  div.innerHTML = `<div class="avatar">${avatar}</div>
+    <div><div class="bubble">${text}</div>
+    <div class="meta">${roleLabel} · ${meta || ''}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  if (!message) return;
+  input.value = '';
+
+  addMessage('customer', message, '');
+
+  const projectCode = document.getElementById('projectCode').value.trim();
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        customer_id: customerId,
+        message: message,
+        project_code: projectCode,
+      }),
+    });
+    const data = await resp.json();
+
+    addMessage('bot', data.reply, data.intent);
+
+    // Update sidebar
+    const intentInfo = document.getElementById('intentInfo');
+    intentInfo.innerHTML = `<div class="intent-tag ${data.intent}">${data.intent}</div>
+      <div style="font-size:12px;margin-top:4px">置信度: ${(data.confidence*100).toFixed(0)}%</div>
+      <div style="font-size:12px">FAQ匹配: ${data.faq_matches || 0} 条</div>
+      <div style="font-size:12px">阶段: ${data.stage || '-'}</div>
+      ${data.project_code ? `<div style="font-size:12px">项目: ${data.project_code}</div>` : ''}
+      ${data.escalation ? '<div style="color:#c62828;font-size:12px">需要升级人工处理</div>' : ''}`;
+
+    // Update stage tag
+    const stageTag = document.getElementById('stageTag');
+    stageTag.textContent = data.stage || data.intent;
+    stageTag.className = 'stage ' + (data.stage || '');
+    if (data.escalation) stageTag.classList.add('escalated');
+
+  } catch (e) {
+    console.error(e);
+    addMessage('bot', '网络错误，请重试', '');
+  }
+}
+
+async function resetChat() {
+  await fetch('/api/reset', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({customer_id: customerId}),
+  });
+  document.getElementById('messages').innerHTML = `<div class="empty-state">
+    <div style="font-size:40px">&#x1f527;</div>
+    <div style="font-weight:500">对话已重置</div>
+    <div style="font-size:12px;color:#bbb">可以开始新的对话</div></div>`;
+  document.getElementById('intentInfo').innerHTML = '<div style="font-size:12px;color:#999">等待对话...</div>';
+  document.getElementById('stageTag').textContent = '待命中';
+  document.getElementById('stageTag').className = 'stage';
+}
+</script>
+</body>
+</html>

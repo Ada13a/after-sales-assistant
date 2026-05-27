@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>售后助手 - 管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,system-ui,sans-serif;background:#f5f5f5;color:#333}
+.header{background:#1b5e20;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:20px;font-weight:600}
+.header nav a{color:#a5d6a7;text-decoration:none;margin-left:20px;font-size:14px}
+.header nav a:hover{color:#fff}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stat-card .num{font-size:32px;font-weight:700;color:#1b5e20}
+.stat-card .label{font-size:13px;color:#888;margin-top:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.panel h2{font-size:16px;color:#333;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #ff9800}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #f0f0f0}
+th{color:#888;font-weight:500;font-size:12px}
+tr:hover{background:#fafafa}
+.bar-cell{display:flex;align-items:center;gap:8px}
+.bar{height:16px;background:#ff9800;border-radius:4px;min-width:4px;opacity:.7}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag.code{background:#ffebee;color:#c62828}
+.tag.thesis{background:#f3e5f5;color:#6a1b9a}
+.tag.logistics{background:#e0f2f1;color:#00695c}
+.tag.guide{background:#e3f2fd;color:#1565c0}
+.tag.defense{background:#e8f5e9;color:#2e7d32}
+.tag.hardware{background:#fce4ec;color:#880e4f}
+.tag.modify{background:#fff3e0;color:#e65100}
+.tag.parts{background:#fce4ec;color:#4a148c}
+.loading{text-align:center;padding:40px;color:#999}
+.error{text-align:center;padding:40px;color:#c62828}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>售后助手 - 管理后台</h1>
+  <nav>
+    <a href="/chat">对话测试</a>
+    <a href="/admin">管理后台</a>
+    <a href="/api/health">API状态</a>
+  </nav>
+</div>
+
+<div class="container">
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="num" id="statQA">-</div><div class="label">FAQ问答对</div></div>
+    <div class="stat-card"><div class="num" id="statProjects">-</div><div class="label">售后项目</div></div>
+    <div class="stat-card"><div class="num" id="statCategories">-</div><div class="label">问题分类</div></div>
+    <div class="stat-card"><div class="num" id="statTopIssue">-</div><div class="label">最常见问题类型</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <h2>问题类型分布</h2>
+      <div id="categoryChart" class="loading">加载中...</div>
+    </div>
+    <div class="panel">
+      <h2>售后问题最多的项目 (Top 10)</h2>
+      <div id="topProjects" class="loading">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadStats() {
+  try {
+    const resp = await fetch('/api/aftersales/stats');
+    const data = await resp.json();
+
+    document.getElementById('statQA').textContent = data.total_qa_pairs || 0;
+    document.getElementById('statProjects').textContent = data.total_projects_with_issues || 0;
+
+    // Category breakdown
+    const cats = data.category_breakdown || {};
+    const catEntries = Object.entries(cats).sort((a,b) => b[1] - a[1]);
+    document.getElementById('statCategories').textContent = catEntries.length;
+
+    if (catEntries.length > 0) {
+      document.getElementById('statTopIssue').textContent = catEntries[0][0];
+    }
+
+    // Category chart
+    const maxCount = catEntries.length > 0 ? catEntries[0][1] : 1;
+    const tagClassMap = {
+      '代码问题':'code','论文问题':'thesis','物流跟踪':'logistics',
+      '使用指导':'guide','答辩支持':'defense','硬件问题':'hardware',
+      '功能修改':'modify','器件采购':'parts'
+    };
+    document.getElementById('categoryChart').innerHTML = `
+      <table>
+        ${catEntries.map(([cat, count]) => `
+          <tr>
+            <td><span class="tag ${tagClassMap[cat]||''}">${cat}</span></td>
+            <td>
+              <div class="bar-cell">
+                <div class="bar" style="width:${Math.max(count/maxCount*200,4)}px"></div>
+                <span>${count}</span>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </table>`;
+
+    // Top projects
+    const topProjects = data.top_issue_chats || [];
+    document.getElementById('topProjects').innerHTML = `
+      <table>
+        <tr><th>项目名称</th><th>代号</th><th>QA数</th></tr>
+        ${topProjects.slice(0,10).map(p => `
+          <tr>
+            <td>${p.name || '-'}</td>
+            <td style="font-family:monospace">${p.project_code || '-'}</td>
+            <td>${p.qa_count}</td>
+          </tr>
+        `).join('')}
+      </table>`;
+
+  } catch (e) {
+    console.error(e);
+    document.getElementById('categoryChart').innerHTML = '<div class="error">加载失败，请确认服务已启动</div>';
+  }
+}
+
+loadStats();
+</script>
+</body>
+</html>

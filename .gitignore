@@ -1,0 +1,21 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Distribution
+wecom_extract_tool_send/
+*.exe
+*.zip
+found_keys.*
+
+# OS
+.DS_Store
+Thumbs.db
