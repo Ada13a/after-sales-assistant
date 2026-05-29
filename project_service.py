@@ -4,7 +4,7 @@
 import json
 from pathlib import Path
 
-TAN_DAN_KB = Path(r"d:/Agent_project/谈单助手/knowledge_base")
+TAN_DAN_KB = Path(r"F:/自媒体/智能体/谈单助手v2.0/谈单助手/knowledge_base")
 KB_DIR = Path(__file__).parent / "knowledge_base"
 
 

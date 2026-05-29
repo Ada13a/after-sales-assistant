@@ -31,9 +31,9 @@ WeCom Integration (wecom_service.py)
 
 | 用途 | 路径 |
 |------|------|
-| 微信解密 DB (消息) | `F:/sotfware shit/Weixin_file/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/message/message_0.decrypted.db` |
-| 微信解密 DB (联系人) | `F:/sotfware shit/Weixin_file/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/contact/contact.decrypted.db` |
-| 谈单助手知识库 | `d:/Agent_project/谈单助手/knowledge_base/` |
+| 微信解密 DB (消息) | `E:/software shit/WeChat_buff/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/message/message_0.decrypted.db` |
+| 微信解密 DB (联系人) | `E:/software shit/WeChat_buff/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/contact/contact.decrypted.db` |
+| 谈单助手知识库 | `F:/自媒体/智能体/谈单助手v2.0/谈单助手/knowledge_base/` |
 | 售后知识库 | `knowledge_base/` (本项目) |
 
 ## Key Dependencies

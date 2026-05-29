@@ -1,117 +1,117 @@
 {
-  "total_qa_pairs": 1913,
-  "total_projects_with_issues": 200,
-  "total_chats_analyzed": 200,
+  "total_qa_pairs": 19260,
+  "total_projects_with_issues": 415,
+  "total_chats_analyzed": 415,
   "category_breakdown": {
-    "物流跟踪": 618,
-    "代码问题": 562,
-    "论文问题": 466,
-    "使用指导": 149,
-    "答辩支持": 66,
-    "硬件问题": 28,
-    "功能修改": 15,
-    "器件采购": 9
+    "论文问题": 6192,
+    "代码问题": 5365,
+    "物流跟踪": 5088,
+    "使用指导": 1386,
+    "答辩支持": 644,
+    "硬件问题": 308,
+    "器件采购": 170,
+    "功能修改": 107
   },
   "top_issue_chats": [
     {
-      "name": "介明电子群",
-      "qa_count": 91,
-      "project_code": ""
+      "name": "26Q0264_PLC搅拌站",
+      "qa_count": 235,
+      "project_code": "26Q0264"
     },
     {
-      "name": "深圳发财群",
-      "qa_count": 54,
-      "project_code": ""
+      "name": "26B0672卧室智能环境监测-D-1069-售后",
+      "qa_count": 177,
+      "project_code": "26B0672"
     },
     {
-      "name": "54622916751@chatroom",
-      "qa_count": 54,
-      "project_code": ""
+      "name": "26B0693KL全屋智能家居环境监测系统",
+      "qa_count": 154,
+      "project_code": "26B0693"
     },
     {
-      "name": "26B0601KL电梯智能控制系统",
-      "qa_count": 42,
-      "project_code": "26B0601"
+      "name": "26B0080KL智能储物柜控制系统",
+      "qa_count": 135,
+      "project_code": "26B0080"
     },
     {
-      "name": "JX19号之前-26F0317KL机房监测系统",
-      "qa_count": 32,
-      "project_code": "26F0317"
+      "name": "26J0211KL智能停车场管理系统",
+      "qa_count": 120,
+      "project_code": "26J0211"
     },
     {
-      "name": "26F1512驾驶员疲劳安全监测系统",
-      "qa_count": 27,
-      "project_code": "26F1512"
+      "name": "FS-26F0411KL智慧家居环境检测系统",
+      "qa_count": 118,
+      "project_code": "26F0411"
     },
     {
-      "name": "AS-26F0425KL人体健康监测系统",
-      "qa_count": 27,
-      "project_code": "26F0425"
+      "name": "26D0043KL K210旅游景区智能讲解系统",
+      "qa_count": 116,
+      "project_code": "26D0043"
     },
     {
-      "name": "26J1943智能药箱",
-      "qa_count": 27,
-      "project_code": "26J1943"
+      "name": "26F0362KL宠物智能喂养系统",
+      "qa_count": 115,
+      "project_code": "26F0362"
     },
     {
-      "name": "26B0391KL智能家居控制系统",
-      "qa_count": 26,
-      "project_code": "26B0391"
+      "name": "AS-26B0726KL图书阅览室智能监控",
+      "qa_count": 113,
+      "project_code": "26B0726"
     },
     {
-      "name": "26Q0568PLC的立体仓库控制系统",
-      "qa_count": 25,
-      "project_code": "26Q0568"
+      "name": "26B1095KL智能厨房燃气泄漏检测",
+      "qa_count": 107,
+      "project_code": "26B1095"
     },
     {
-      "name": "JL-26B1859KL智能婴儿床系统",
-      "qa_count": 24,
+      "name": "26B1211骑行者智能安全头盔系统",
+      "qa_count": 106,
+      "project_code": "26B1211"
+    },
+    {
+      "name": "26F0302KL_Lora宿舍限电监测系统",
+      "qa_count": 106,
+      "project_code": "26F0302"
+    },
+    {
+      "name": "26B0351KL微型智能仓储环境监控-D-1064",
+      "qa_count": 103,
+      "project_code": "26B0351"
+    },
+    {
+      "name": "26D0075KL-D-1063-后续加急",
+      "qa_count": 100,
+      "project_code": "26D0075"
+    },
+    {
+      "name": "26B1859KL智能婴儿床系统",
+      "qa_count": 97,
       "project_code": "26B1859"
     },
     {
-      "name": "26A1305KL温湿度监控系统",
-      "qa_count": 20,
-      "project_code": "26A1305"
+      "name": "26C0608KL智能小车系统-海-D-1098",
+      "qa_count": 96,
+      "project_code": "26C0608"
     },
     {
-      "name": "26F1547KL家居火灾监控报警系统",
-      "qa_count": 20,
-      "project_code": "26F1547"
+      "name": "26B0906KL（原B0383）-D-1044-售后",
+      "qa_count": 96,
+      "project_code": "26B0906"
     },
     {
-      "name": "26B1880KL智能家居环境检测与控制系统",
-      "qa_count": 19,
-      "project_code": "26B1880"
+      "name": "26F0176KL 门窗异常闯入监测系统",
+      "qa_count": 96,
+      "project_code": "26F0176"
     },
     {
-      "name": "26Q0622KLPLC的自动化灌装控制系统",
-      "qa_count": 18,
-      "project_code": "26Q0622"
+      "name": "26F0766KL智能自主停车场系统",
+      "qa_count": 96,
+      "project_code": "26F0766"
     },
     {
-      "name": "如姐",
-      "qa_count": 18,
-      "project_code": ""
-    },
-    {
-      "name": "26B0357KL智能窗帘控制系统",
-      "qa_count": 18,
-      "project_code": "26B0357"
-    },
-    {
-      "name": "D-1143",
-      "qa_count": 18,
-      "project_code": ""
-    },
-    {
-      "name": "D-1105",
-      "qa_count": 16,
-      "project_code": ""
-    },
-    {
-      "name": "26F1613KL农田土壤无线监测系统",
-      "qa_count": 16,
-      "project_code": "26F1613"
+      "name": "26J0098L-D-1019-售后",
+      "qa_count": 92,
+      "project_code": "26J0098"
     }
   ]
 }

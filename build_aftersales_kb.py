@@ -15,10 +15,23 @@ from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
 
-MSG_DB = r"F:/sotfware shit/Weixin_file/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/message/message_0.decrypted.db"
-CONTACT_DB = r"F:/sotfware shit/Weixin_file/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/contact/contact.decrypted.db"
+# 无关群聊黑名单（非MCU毕设业务的群）
+CHAT_BLACKLIST = [
+    "有钱有颜私董会",
+    "小鸡岛岛民",
+    "生财有术00后基地",
+    "渡鸦科技社",
+    "墨鸦Claw",
+    "大明单片机学习陪伴群",
+    "深圳发财群",
+    "介明电子群",
+]
+
+MSG_DB = Path(r"E:/software shit/WeChat_buff/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/message/message_0.decrypted.db")
+MSG_DB2 = Path(r"E:/software shit/WeChat_buff/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/message/message_1.decrypted.db")
+CONTACT_DB = Path(r"E:/software shit/WeChat_buff/xwechat_files/wxid_4ylmjumlahzd22_3c59/db_storage/contact/contact.decrypted.db")
 KB_DIR = Path(__file__).parent / "knowledge_base"
-TAN_DAN_KB = Path(r"d:/Agent_project/谈单助手/knowledge_base")
+TAN_DAN_KB = Path(r"F:/自媒体/智能体/谈单助手v2.0/谈单助手/knowledge_base")
 KB_DIR.mkdir(exist_ok=True)
 
 
@@ -179,7 +192,7 @@ def load_contacts():
     """加载联系人信息"""
     contacts = {}
     try:
-        conn = sqlite3.connect(CONTACT_DB)
+        conn = sqlite3.connect(str(CONTACT_DB))
         for row in conn.execute("SELECT username, remark, nick_name, alias FROM contact"):
             username, remark, nick, alias = row
             contacts[username] = {
@@ -193,19 +206,13 @@ def load_contacts():
     return contacts
 
 
-def build_knowledge_base():
-    print("=" * 60)
-    print("售后知识库构建")
-    print("=" * 60)
+def process_message_db(db_path, contacts, all_qa_pairs, all_issues, category_counts, chat_issue_stats, db_label=""):
+    """处理单个消息数据库，提取售后QA对"""
+    if not db_path.exists():
+        print(f"  {db_label}: 数据库不存在, 跳过")
+        return 0
 
-    # 加载联系人
-    print("\n[1/4] 加载联系人...")
-    contacts = load_contacts()
-    print(f"  加载 {len(contacts)} 个联系人")
-
-    # 连接消息DB
-    print("\n[2/4] 扫描售后消息...")
-    conn_msg = sqlite3.connect(MSG_DB)
+    conn_msg = sqlite3.connect(str(db_path))
 
     # 构建 username -> display_name 映射
     name2id = {}
@@ -233,17 +240,13 @@ def build_knowledge_base():
 
     table_stats.sort(key=lambda x: x[1], reverse=True)
     total_msgs = sum(c for _, c in table_stats)
-    print(f"  共 {len(table_stats)} 个会话, {total_msgs} 条消息")
+    print(f"  {db_label}: {len(table_stats)} 个会话, {total_msgs} 条消息")
 
-    # 处理前200个最大的会话（覆盖主要业务对话）
-    top_tables = table_stats[:200]
+    # 处理最大的会话（增加处理数量覆盖更多对话）
+    top_tables = table_stats[:500]
     print(f"  分析前 {len(top_tables)} 个最大会话...")
 
-    all_qa_pairs = []
-    all_issues = []
-    category_counts = defaultdict(int)
-    chat_issue_stats = []
-
+    new_pairs = 0
     for idx, (table, cnt) in enumerate(top_tables):
         md5_hash = table[4:]
         username = md5_to_user.get(md5_hash, "?@" + md5_hash[:8])
@@ -255,8 +258,19 @@ def build_knowledge_base():
         if code_match:
             project_code = code_match.group(1)
 
+        # 过滤黑名单群聊
+        if any(bl in display for bl in CHAT_BLACKLIST):
+            continue
+
+        # 只处理包含项目代号的群聊（26xxxxx格式）
+        if not project_code:
+            continue
+
         # 读取消息
-        cols = [d[1] for d in conn_msg.execute(f"PRAGMA table_info('{table}')").fetchall()]
+        try:
+            cols = [d[1] for d in conn_msg.execute(f"PRAGMA table_info('{table}')").fetchall()]
+        except Exception:
+            continue
         has_content = "message_content" in cols
 
         try:
@@ -266,7 +280,7 @@ def build_knowledge_base():
             rows = conn_msg.execute(
                 f"SELECT {', '.join(select_cols)} FROM [{table}] ORDER BY create_time ASC"
             ).fetchall()
-        except Exception as e:
+        except Exception:
             continue
 
         # 解析消息
@@ -286,6 +300,7 @@ def build_knowledge_base():
             for qa in qa_pairs:
                 category_counts[qa["category"]] += 1
             all_qa_pairs.extend(qa_pairs)
+            new_pairs += len(qa_pairs)
 
             # 记录项目售后统计
             issue_categories = list(set(qa["category"] for qa in qa_pairs))
@@ -302,10 +317,36 @@ def build_knowledge_base():
                 "qa_pairs": qa_pairs,
             })
 
-        if (idx + 1) % 50 == 0:
-            print(f"  {idx+1}/{len(top_tables)} 已处理, 找到 {len(all_qa_pairs)} 个QA对...")
+        if (idx + 1) % 100 == 0:
+            print(f"  {idx+1}/{len(top_tables)} 已处理, 新增 {new_pairs} 个QA对...")
 
     conn_msg.close()
+    return new_pairs
+
+
+def build_knowledge_base():
+    print("=" * 60)
+    print("售后知识库构建")
+    print("=" * 60)
+
+    # 加载联系人
+    print("\n[1/4] 加载联系人...")
+    contacts = load_contacts()
+    print(f"  加载 {len(contacts)} 个联系人")
+
+    # 扫描售后消息
+    print("\n[2/4] 扫描售后消息...")
+    all_qa_pairs = []
+    all_issues = []
+    category_counts = defaultdict(int)
+    chat_issue_stats = []
+
+    total_chats = 0
+    n1 = process_message_db(MSG_DB, contacts, all_qa_pairs, all_issues,
+                            category_counts, chat_issue_stats, db_label="message_0.db")
+    n2 = process_message_db(MSG_DB2, contacts, all_qa_pairs, all_issues,
+                            category_counts, chat_issue_stats, db_label="message_1.db")
+    print(f"  总计: {len(all_qa_pairs)} 个QA对")
 
     # 加载谈单助手项目数据补充项目信息
     print("\n[3/4] 关联项目信息...")
@@ -346,7 +387,7 @@ def build_knowledge_base():
     stats = {
         "total_qa_pairs": len(all_qa_pairs),
         "total_projects_with_issues": len(all_issues),
-        "total_chats_analyzed": len(top_tables),
+        "total_chats_analyzed": len(chat_issue_stats),
         "category_breakdown": dict(sorted(category_counts.items(), key=lambda x: x[1], reverse=True)),
         "top_issue_chats": sorted(
             [{"name": c["chat_name"], "qa_count": c["qa_count"], "project_code": c["project_code"]}
