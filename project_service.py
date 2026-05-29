@@ -4,8 +4,11 @@
 import json
 from pathlib import Path
 
-TAN_DAN_KB = Path(r"F:/自媒体/智能体/谈单助手v2.0/谈单助手/knowledge_base")
 KB_DIR = Path(__file__).parent / "knowledge_base"
+# 优先使用本地知识库，谈单助手路径作为可选的外部源
+TAN_DAN_KB = Path(r"F:/自媒体/智能体/谈单助手v2.0/谈单助手/knowledge_base")
+if not (TAN_DAN_KB / "projects.json").exists():
+    TAN_DAN_KB = KB_DIR  # fallback to local
 
 
 class ProjectService:
